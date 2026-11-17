@@ -12,12 +12,22 @@ import scipy.io
 import pandas as pd
 import numpy as np
 import os
+from pathlib import Path
+import re
 
-RAW_DIR = os.path.join(os.path.dirname(__file__), '..', 'data', 'raw')
-OUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'data', 'processed')
+RUN_DIR = os.environ.get('SQA_RUN_DIR', os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+RAW_DIR = os.path.join(RUN_DIR, 'data', 'raw')
+OUT_DIR = os.path.join(RUN_DIR, 'data', 'processed')
 os.makedirs(OUT_DIR, exist_ok=True)
 
-BATTERIES = ['B0005', 'B0006', 'B0007', 'B0018']
+CANONICAL_COLUMNS = ['battery_id', 'cycle', 'timestep', 'time', 'voltage',
+                     'current', 'temperature', 'capacity']
+
+
+def safe_filename(value):
+    """Keep user-supplied CSV battery IDs from becoming filesystem paths."""
+    name = re.sub(r'[^A-Za-z0-9_.-]+', '_', str(value)).strip('._')
+    return name or 'battery'
 
 
 def parse_battery(mat_path, battery_id):
@@ -74,20 +84,52 @@ def parse_battery(mat_path, battery_id):
     return df
 
 
+def load_canonical_csv(csv_path):
+    """Read long-format CSV data using the project's standard column names."""
+    df = pd.read_csv(csv_path)
+    required = {'cycle', 'time', 'voltage', 'current', 'temperature', 'capacity'}
+    missing = required - set(df.columns)
+    if missing:
+        raise ValueError(f'{Path(csv_path).name} is missing required columns: {sorted(missing)}')
+    if 'battery_id' not in df.columns:
+        df['battery_id'] = Path(csv_path).stem
+    if 'time' not in df.columns:
+        df['time'] = np.nan
+    if 'timestep' not in df.columns:
+        df['timestep'] = df.groupby(['battery_id', 'cycle']).cumcount()
+    df = df[CANONICAL_COLUMNS].copy()
+    for col in ['cycle', 'timestep', 'time', 'voltage', 'current', 'temperature', 'capacity']:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+    df['battery_id'] = df['battery_id'].astype(str)
+    return df.dropna(subset=['cycle', 'voltage', 'capacity'])
+
+
 def main():
     all_dfs = []
-    for bid in BATTERIES:
-        mat_path = os.path.join(RAW_DIR, f'{bid}.mat')
-        if not os.path.exists(mat_path):
-            print(f'  [SKIP] {bid}.mat not found in {RAW_DIR}')
-            continue
+    mat_files = sorted(Path(RAW_DIR).glob('*.mat'))
+    csv_files = sorted(Path(RAW_DIR).glob('*.csv'))
+    if mat_files and csv_files:
+        raise ValueError('Use one input format per run: .mat files or canonical .csv files, not both.')
 
-        print(f'  Parsing {bid}.mat ...')
-        df = parse_battery(mat_path, bid)
-        out_path = os.path.join(OUT_DIR, f'{bid}.csv')
-        df.to_csv(out_path, index=False)
-        print(f'  -> {len(df)} rows, {df["cycle"].nunique()} discharge cycles -> {out_path}')
-        all_dfs.append(df)
+    if mat_files:
+        for mat_path in mat_files:
+            bid = mat_path.stem
+            print(f'  Parsing {mat_path.name} ...')
+            df = parse_battery(str(mat_path), bid)
+            out_path = os.path.join(OUT_DIR, f'{safe_filename(bid)}.csv')
+            df.to_csv(out_path, index=False)
+            print(f'  -> {len(df)} rows, {df["cycle"].nunique()} discharge cycles -> {out_path}')
+            all_dfs.append(df)
+    elif csv_files:
+        for csv_path in csv_files:
+            print(f'  Loading {csv_path.name} ...')
+            all_dfs.append(load_canonical_csv(csv_path))
+        combined_csv = pd.concat(all_dfs, ignore_index=True)
+        for bid, df in combined_csv.groupby('battery_id'):
+            out_path = os.path.join(OUT_DIR, f'{safe_filename(bid)}.csv')
+            df.to_csv(out_path, index=False)
+            print(f'  -> {len(df)} rows from {df["cycle"].nunique()} cycles -> {out_path}')
+        all_dfs = [combined_csv]
 
     if all_dfs:
         combined = pd.concat(all_dfs, ignore_index=True)
@@ -95,7 +137,7 @@ def main():
         print(f'\nCombined: {len(combined)} rows across {combined["battery_id"].nunique()} batteries')
         print('Parse complete.')
     else:
-        print('\nNo .mat files found. Download B0005.mat–B0018.mat into data/raw/ first.')
+        raise FileNotFoundError(f'No .mat or .csv dataset files found in {RAW_DIR}')
 
 
 if __name__ == '__main__':
