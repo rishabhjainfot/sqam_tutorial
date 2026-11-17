@@ -1,6 +1,17 @@
+# Windows installers and extracted application payloads are unrelated to this project.
+*.exe
+*.winmd
+scoped_dir*/
+
+# Python-generated cache files.
 __pycache__/
 *.py[cod]
+
+# Local virtual environments.
 .venv/
 venv/
 env/
+runs/
+
+# Streamlit local state.
 .streamlit/secrets.toml
