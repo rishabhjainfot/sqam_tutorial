@@ -1,0 +1,1 @@
+Streamlit dashboard for reviewing the saved scorecard, stage-wise metrics, sensitivity results, and regression/defect logs.
