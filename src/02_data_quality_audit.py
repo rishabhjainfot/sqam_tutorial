@@ -21,8 +21,9 @@ import pandas as pd
 import numpy as np
 import os
 
-PROC_DIR = os.path.join(os.path.dirname(__file__), '..', 'data', 'processed')
-RES_DIR  = os.path.join(os.path.dirname(__file__), '..', 'results')
+RUN_DIR = os.environ.get('SQA_RUN_DIR', os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+PROC_DIR = os.path.join(RUN_DIR, 'data', 'processed')
+RES_DIR  = os.path.join(RUN_DIR, 'results')
 os.makedirs(RES_DIR, exist_ok=True)
 
 KEY_COLS = ['voltage', 'current', 'temperature']
