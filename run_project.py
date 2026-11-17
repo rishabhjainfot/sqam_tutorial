@@ -2,8 +2,8 @@
 
 Accepted inputs:
   * NASA PCoE-style .mat files, one battery per file; or
-  * long-format .csv files with cycle, voltage, current, temperature, capacity,
-    and optionally battery_id, timestep, and time columns.
+  * long-format .csv files with cycle, time, voltage, current, temperature,
+    capacity, and optionally battery_id and timestep columns.
 
 Each run is written to its own runs/ folder so previous results and the
 project's example data are not overwritten.
