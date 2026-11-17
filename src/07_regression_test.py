@@ -22,8 +22,9 @@ import os, json, joblib
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-PROC_DIR = os.path.join(os.path.dirname(__file__), '..', 'data', 'processed')
-RES_DIR  = os.path.join(os.path.dirname(__file__), '..', 'results')
+RUN_DIR = os.environ.get('SQA_RUN_DIR', os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+PROC_DIR = os.path.join(RUN_DIR, 'data', 'processed')
+RES_DIR  = os.path.join(RUN_DIR, 'results')
 
 FEATURE_COLS = ['mean_voltage', 'terminal_voltage', 'discharge_duration',
                 'mean_current', 'temp_range']
