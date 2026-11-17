@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
 # ── Path helpers ──────────────────────────────────────────────────────────────
-BASE = os.path.join(os.path.dirname(__file__), '..')
+BASE = os.environ.get('SQA_RUN_DIR', os.path.join(os.path.dirname(__file__), '..'))
 RES  = os.path.join(BASE, 'results')
 
 def res(fname):
