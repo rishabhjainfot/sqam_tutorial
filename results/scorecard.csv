@@ -1,0 +1,5 @@
+battery_id,completeness,consistency,accuracy,timeliness,overall_status
+B0005,100.0,99.99,89.51,91.68,FLAG
+B0006,100.0,99.67,87.91,91.68,FLAG
+B0007,100.0,99.2,94.82,91.68,PASS
+B0018,100.0,99.62,91.06,97.16,PASS

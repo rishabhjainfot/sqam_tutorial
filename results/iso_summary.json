@@ -1,0 +1,59 @@
+{
+  "standard": "ISO/IEC 25010:2011",
+  "characteristics": {
+    "Functional Suitability": {
+      "sub_characteristic": "Functional Correctness",
+      "rationale": "The model is assessed for correctness of SOH predictions across all degradation stages. RMSE and MAE quantify prediction error; R\u00b2 quantifies explanatory power.",
+      "overall": {
+        "rmse": 0.029094,
+        "mae": 0.02203,
+        "r2": 0.964445
+      },
+      "stage_wise": [
+        {
+          "stage": "Early Life (>90%)",
+          "rmse": 0.013002,
+          "mae": 0.011138,
+          "r2": 0.946297,
+          "status": "PASS"
+        },
+        {
+          "stage": "Mid Life (70-90%)",
+          "rmse": 0.033471,
+          "mae": 0.026434,
+          "r2": 0.885499,
+          "status": "PASS"
+        },
+        {
+          "stage": "Late Life (<70%)",
+          "rmse": NaN,
+          "mae": NaN,
+          "r2": NaN,
+          "status": "PASS"
+        }
+      ],
+      "assessment": "PASS"
+    },
+    "Reliability": {
+      "sub_characteristic": "Fault Tolerance",
+      "rationale": "Reliability is assessed via (a) sensitivity to input perturbation representing sensor noise, and (b) regression testing ensuring model changes do not silently degrade performance.",
+      "sensitivity_at_10pct_temperature_perturbation": {
+        "mean_delta_capacity_at_10pct": 0.0036794999999999996,
+        "max_delta_capacity_at_10pct": 0.018587,
+        "status": "OK"
+      },
+      "regression_pass_rate": 33.3,
+      "assessment": "PARTIAL \u2014 see regression log for details"
+    }
+  },
+  "defect_summary": {
+    "total_test_cases": 12,
+    "total_defects": 2,
+    "defect_density": 16.67,
+    "severity_weighted_score": 4,
+    "severity_breakdown": {
+      "Major": 2
+    },
+    "pass_rate": 83.33
+  }
+}

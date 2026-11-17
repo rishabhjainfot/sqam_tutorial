@@ -1,0 +1,10 @@
+{
+  "total_test_cases": 12,
+  "total_defects": 2,
+  "defect_density": 16.67,
+  "severity_weighted_score": 4,
+  "severity_breakdown": {
+    "Major": 2
+  },
+  "pass_rate": 83.33
+}

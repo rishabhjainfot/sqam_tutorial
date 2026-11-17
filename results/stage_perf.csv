@@ -1,0 +1,4 @@
+stage,n_cycles,rmse,mae,r2,status
+Early Life (>90%),38,0.013002,0.011138,0.946297,PASS
+Mid Life (70-90%),94,0.033471,0.026434,0.885499,PASS
+Late Life (<70%),0,,,,PASS

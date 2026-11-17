@@ -1,0 +1,9 @@
+{
+  "model_version": "v1",
+  "n_estimators": 100,
+  "overall": {
+    "rmse": 0.029094,
+    "mae": 0.02203,
+    "r2": 0.964445
+  }
+}

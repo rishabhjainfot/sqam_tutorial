@@ -1,0 +1,4 @@
+test_case_id,metric,baseline_v1,post_change_v2,pct_change,status
+RT-001,Overall RMSE,0.029094,0.031438,8.06,FAIL
+RT-002,Overall MAE,0.02203,0.023542,6.86,FAIL
+RT-003,Overall R²,0.964445,0.958486,-0.62,PASS
