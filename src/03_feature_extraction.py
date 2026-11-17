@@ -20,11 +20,10 @@ Output: data/processed/features_train.csv, features_test.csv
 import pandas as pd
 import numpy as np
 import os
+import json
 
-PROC_DIR = os.path.join(os.path.dirname(__file__), '..', 'data', 'processed')
-
-TRAIN_BATTERIES = ['B0005', 'B0006', 'B0007']
-TEST_BATTERIES  = ['B0018']
+RUN_DIR = os.environ.get('SQA_RUN_DIR', os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+PROC_DIR = os.path.join(RUN_DIR, 'data', 'processed')
 
 
 def extract_features(df):
@@ -72,14 +71,28 @@ def main():
     # Drop rows with any NaN feature
     features = features.dropna()
 
-    train = features[features['battery_id'].isin(TRAIN_BATTERIES)]
-    test  = features[features['battery_id'].isin(TEST_BATTERIES)]
+    battery_ids = sorted(features['battery_id'].astype(str).unique())
+    test_battery = os.environ.get('SQA_TEST_BATTERY', '').strip()
+    if not test_battery:
+        raise ValueError('Choose a held-out battery by setting SQA_TEST_BATTERY before running this script.')
+    if test_battery not in battery_ids:
+        raise ValueError(f'Held-out battery {test_battery!r} was not found. Available IDs: {battery_ids}')
+    train_batteries = [bid for bid in battery_ids if bid != test_battery]
+    if not train_batteries:
+        raise ValueError('At least two battery IDs are required: one for training and one held out for testing.')
+
+    train = features[features['battery_id'].astype(str).isin(train_batteries)]
+    test  = features[features['battery_id'].astype(str) == test_battery]
+    if train.empty or test.empty:
+        raise ValueError('The selected split produced an empty train or test set. Check the input cycles.')
 
     train.to_csv(os.path.join(PROC_DIR, 'features_train.csv'), index=False)
     test.to_csv(os.path.join(PROC_DIR,  'features_test.csv'),  index=False)
 
-    print(f'Train set: {len(train)} cycles from {TRAIN_BATTERIES}')
-    print(f'Test  set: {len(test)}  cycles from {TEST_BATTERIES}')
+    with open(os.path.join(RUN_DIR, 'run_config.json'), 'w', encoding='utf-8') as f:
+        json.dump({'train_batteries': train_batteries, 'test_battery': test_battery}, f, indent=2)
+    print(f'Train set: {len(train)} cycles from {train_batteries}')
+    print(f'Test  set: {len(test)} cycles from {[test_battery]}')
     print('Feature extraction complete.')
 
 
