@@ -17,7 +17,8 @@ import pandas as pd
 import numpy as np
 import os, json
 
-RES_DIR = os.path.join(os.path.dirname(__file__), '..', 'results')
+RUN_DIR = os.environ.get('SQA_RUN_DIR', os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+RES_DIR = os.path.join(RUN_DIR, 'results')
 
 
 def load_json(fname):
