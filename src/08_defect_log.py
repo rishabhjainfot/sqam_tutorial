@@ -20,7 +20,8 @@ import pandas as pd
 import numpy as np
 import os, json
 
-RES_DIR = os.path.join(os.path.dirname(__file__), '..', 'results')
+RUN_DIR = os.environ.get('SQA_RUN_DIR', os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+RES_DIR = os.path.join(RUN_DIR, 'results')
 
 TOTAL_TEST_CASES = 12   # 3 stage + 6 sensitivity + 3 regression
 SEVERITY_WEIGHTS = {'Critical': 3, 'Major': 2, 'Minor': 1}
