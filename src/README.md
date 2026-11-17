@@ -1,1 +1,0 @@
-Pipeline scripts for parsing the NASA battery files, auditing data quality, extracting features, training models, and running SQA checks.
